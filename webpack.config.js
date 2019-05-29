@@ -58,6 +58,17 @@ module.exports = {
                 },
             }, {loader: 'css-loader'}],
         },
+        {
+            test: /\.(woff|woff2)$/i,
+            use: [
+                {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 8192
+                    }
+                }
+            ]
+        }
     ]
   },
     optimization: {
