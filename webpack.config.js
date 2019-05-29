@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   devtool: 'eval',
@@ -21,17 +22,15 @@ module.exports = {
       filename: 'index.html',
       template: path.join(__dirname, 'index.hbs')
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      filename: 'vendor.[hash].js',
-      minChunks(module) {
-        return module.context &&
-          module.context.indexOf('node_modules') >= 0;
-      }
-    })
+      new MiniCssExtractPlugin({
+          // Options similar to the same options in webpackOptions.output
+          // both options are optional
+          filename: '[name].css',
+          chunkFilename: '[id].css',
+      }),
   ],
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: ['.ts', '.tsx', '.js', '.json', 'css'],
     modules: [
       'node_modules',
       'src',
@@ -42,11 +41,46 @@ module.exports = {
     inline: true,
   },
   module: {
-    rules: [{
-      test: /\.tsx?$/,
-      use: ['react-hot-loader/webpack', 'awesome-typescript-loader'],
-      exclude: /node_modules/,
-    }]
+    rules: [
+        {
+          test: /\.tsx?$/,
+          use: [{loader: 'react-hot-loader/webpack'}, {loader: 'awesome-typescript-loader'}],
+          exclude: /node_modules/,
+        },
+        {
+            test: /\.css$/i,
+            use: [{
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                    // you can specify a publicPath here
+                    // by default it uses publicPath in webpackOptions.output
+                    // publicPath: '../',
+                },
+            }, {loader: 'css-loader'}],
+        },
+    ]
   },
-  devtool: 'source-map'
+    optimization: {
+        splitChunks: {
+            chunks: 'async',
+            minSize: 30000,
+            maxSize: 0,
+            minChunks: 1,
+            maxAsyncRequests: 5,
+            maxInitialRequests: 3,
+            automaticNameDelimiter: '~',
+            name: true,
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    priority: -10
+                },
+                default: {
+                    minChunks: 2,
+                    priority: -20,
+                    reuseExistingChunk: true
+                }
+            }
+        }
+    }
 };

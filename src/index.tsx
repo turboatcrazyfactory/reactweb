@@ -15,7 +15,7 @@ declare var module: any;
 if (module.hot) {
   module.hot.accept('./App', () => {
     console.log('doing a app hot accept');
-    const NextApp = require('./App').default;
+    const NextApp = App;
     ReactDOM.render(
       <AppContainer>
         <NextApp />
