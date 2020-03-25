@@ -14,7 +14,7 @@ function Square(props) {
 
 function RestartButton(props) {
     return (
-        <a onClick={props.onClick} style={{display: props.hidden ? 'none' : ''}}>Restart</a>
+        <a href="#" onClick={props.onClick} style={{display: props.hidden ? 'none' : ''}}>Restart</a>
     );
 }
 
