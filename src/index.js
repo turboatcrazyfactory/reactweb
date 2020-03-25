@@ -12,13 +12,21 @@ function Square(props) {
     );
 }
 
+function RestartButton(props) {
+    return (
+        <a onClick={props.onClick} style={{display: props.hidden ? 'none' : ''}}>Restart</a>
+    );
+}
+
 class Board extends React.Component {
+    defaultState = {
+        squares: Array(9).fill(null),
+        currentTurn: 'X'
+    }
+
     constructor(props) {
         super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            currentTurn: 'X'
-        };
+        this.state = this.defaultState;
     }
 
     mark(i) {
@@ -65,17 +73,28 @@ class Board extends React.Component {
         return null;
     }
 
+    restart() {
+        this.setState(this.defaultState);
+    }
+
     render() {
         const winner = Board.calculateWinner(this.state.squares);
-        let status;
+        let status = 'Next player: ' + this.state.currentTurn;
+        let end = false;
         if (winner) {
             status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + this.state.currentTurn;
+            end = true;
+        }
+
+        if (this.state.squares.indexOf(null) === -1) {
+            end = true;
         }
 
         return (
             <div>
+                <RestartButton onClick={() => {
+                    this.restart();
+                }} hidden={!end}/>
                 <div className="status">{status}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
