@@ -58,7 +58,11 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [],
+            history: [
+                {
+                    squares: Array(9).fill(null)
+                }
+            ],
             currentStep: 0,
             squares: Array(9).fill(null),
         };
@@ -69,21 +73,22 @@ class Game extends React.Component {
     }
 
     mark(i) {
-        const newSquares = this.state.squares.slice();
+        const newHistory = this.state.history.slice(0, this.state.currentStep + 1);
+        const current = newHistory[newHistory.length - 1];
+        const newSquares = current.squares.slice();
         if (Game.calculateWinner(newSquares) || newSquares[i]) {
             return;
         }
 
         newSquares[i] = this.whoseTurn();
         this.setState({
-            squares: newSquares,
-            history: this.state.history.concat([{squares: newSquares}]),
-            currentStep: this.state.currentStep + 1
+            history: newHistory.concat([{squares: newSquares}]),
+            currentStep: newHistory.length
         });
     }
 
     restart() {
-        this.setState({...this.state, currentStep: 0, squares: Array(9).fill(null)});
+        this.setState({...this.state, currentStep: 0});
     }
 
     static calculateWinner(squares) {
@@ -108,12 +113,12 @@ class Game extends React.Component {
     }
 
     jumpTo(move) {
-        const targetMove = this.state.history[move];
-        this.setState({...this.state, ...targetMove});
+        this.setState({...this.state, currentStep: move});
     }
 
     render() {
-        const winner = Game.calculateWinner(this.state.squares);
+        const squares = this.state.history[this.state.currentStep].squares;
+        const winner = Game.calculateWinner(squares);
         const moves = this.state.history.map((step, move) => {
             const desc = move
                 ? `Go to move #${move}`
@@ -136,7 +141,7 @@ class Game extends React.Component {
             end = true;
         }
 
-        if (this.state.squares.indexOf(null) === -1) {
+        if (squares.indexOf(null) === -1) {
             end = true;
         }
 
@@ -157,7 +162,7 @@ class Game extends React.Component {
                             this.mark(i);
                         }}
 
-                        squares={this.state.squares}
+                        squares={squares}
                     />
                 </div>
                 <div className="game-info">
