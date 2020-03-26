@@ -59,28 +59,31 @@ class Game extends React.Component {
         super(props);
         this.state = {
             history: [],
-            currentTurn: 'X',
+            currentStep: 0,
             squares: Array(9).fill(null),
         };
     }
 
+    whoseTurn() {
+        return this.state.currentStep % 2 === 0 ? 'X' : 'O';
+    }
+
     mark(i) {
         const newSquares = this.state.squares.slice();
-        const newCurrentTurn = this.state.currentTurn === 'X' ? 'O' : 'X';
         if (Game.calculateWinner(newSquares) || newSquares[i]) {
             return;
         }
 
-        newSquares[i] = this.state.currentTurn;
+        newSquares[i] = this.whoseTurn();
         this.setState({
             squares: newSquares,
-            history: this.state.history.concat([{squares: newSquares, currentTurn: newCurrentTurn}]),
-            currentTurn: newCurrentTurn,
+            history: this.state.history.concat([{squares: newSquares}]),
+            currentStep: this.state.currentStep + 1
         });
     }
 
     restart() {
-        this.setState({...this.state, currentTurn: 'X', squares: Array(9).fill(null)});
+        this.setState({...this.state, currentStep: 0, squares: Array(9).fill(null)});
     }
 
     static calculateWinner(squares) {
@@ -126,7 +129,7 @@ class Game extends React.Component {
                 </li>
             );
         });
-        let status = 'Next player: ' + this.state.currentTurn;
+        let status = 'Next player: ' + this.whoseTurn();
         let end = false;
         if (winner) {
             status = 'Winner: ' + winner;
