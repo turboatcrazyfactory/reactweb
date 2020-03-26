@@ -17,7 +17,7 @@ class Board extends React.Component {
         return (
             <Square value={this.props.squares[i]}
                     onClick={() => {
-                        this.props.handleSquareClick(i);
+                        this.props.handleClick(i);
                     }}
             />
         );
@@ -158,7 +158,7 @@ class Game extends React.Component {
                             }
                             this.recordHistory(squares);
                         }}
-                        handleSquareClick={(i) => {
+                        handleClick={(i) => {
                             this.mark(i);
                         }}
 
