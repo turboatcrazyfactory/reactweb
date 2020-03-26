@@ -80,10 +80,13 @@ class Game extends React.Component {
             return;
         }
 
+        const row = Math.ceil((i + 1) / 3);
+        const col = (i + 1) % 3 === 0 ? 3 : (i + 1) % 3;
+
         newSquares[i] = this.whoseTurn();
         this.setState({
-            history: newHistory.concat([{squares: newSquares}]),
-            currentStep: newHistory.length
+            history: newHistory.concat([{squares: newSquares, lastCellChangeLocation: `(${col}, ${row})`}]),
+            currentStep: newHistory.length,
         });
     }
 
@@ -94,7 +97,7 @@ class Game extends React.Component {
     static calculateWinner(squares) {
         const lines = [
             [0, 1, 2],
-            [3, 4, 5],
+            [3, 4, 5], // (1,2) | (2,2) | (3,2)
             [6, 7, 8],
             [0, 3, 6],
             [1, 4, 7],
@@ -121,7 +124,7 @@ class Game extends React.Component {
         const winner = Game.calculateWinner(squares);
         const moves = this.state.history.map((step, move) => {
             const desc = move
-                ? `Go to move #${move}`
+                ? `Go to move #${move} ${step.lastCellChangeLocation}`
                 : 'Go to game start';
 
             return (
