@@ -22,7 +22,7 @@ class Board extends React.Component {
     defaultState = {
         squares: Array(9).fill(null),
         currentTurn: 'X'
-    }
+    };
 
     constructor(props) {
         super(props);
@@ -36,6 +36,7 @@ class Board extends React.Component {
         }
 
         squares[i] = this.state.currentTurn;
+        this.props.handleChange(squares);
         this.setState({
             squares: squares,
             currentTurn: this.state.currentTurn === 'X' ? 'O' : 'X',
@@ -117,11 +118,32 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [],
+        };
+    }
+
+    recordHistory(squares) {
+        const newHistory = this.state.history.slice();
+        newHistory.push({squares});
+        this.setState({
+            history: newHistory
+        })
+    }
+
     render() {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board/>
+                    <Board handleChange={(squares) => {
+                        if (!squares) {
+                            return;
+                        }
+                        this.recordHistory(squares);
+                    }}/>
                 </div>
                 <div className="game-info">
                     <div>{/* status */}</div>
