@@ -32,6 +32,20 @@ ol, ul {
     width: 34px;
 }
 
+.flash-in {
+    animation-name: flash-in;
+    animation-duration: 1s;
+}
+
+@keyframes flash-in {
+    from {
+        background-color: white;
+    }
+    to {
+        background-color: #b5fdff;
+    }
+}
+
 .square:focus {
     outline: none;
 }

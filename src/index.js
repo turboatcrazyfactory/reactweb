@@ -2,23 +2,41 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css'
 
-function Square(props) {
-    return (
-        <button className="square"
-                onClick={props.onClick}
-        >
-            {props.value}
-        </button>
-    );
+class Square extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            cssClass: ''
+        };
+    }
+
+    render() {
+        if (this.props.lastClickLocation === this.props.id) {
+            this.state.cssClass = 'flash-in';
+            setTimeout(() => {
+                this.setState({cssClass: ''});
+            }, 2000);
+        }
+
+        return (
+            <button className={"square " + this.state.cssClass}
+                    onClick={this.props.onClick}
+            >
+                {this.props.value}
+            </button>
+        );
+    }
 }
 
 class Board extends React.Component {
     renderSquare(i) {
         return (
-            <Square value={this.props.squares[i]}
+            <Square id={i} value={this.props.squares[i]}
                     onClick={() => {
                         this.props.handleClick(i);
                     }}
+                    lastClickLocation={this.props.lastClickLocation}
             />
         );
     }
@@ -85,7 +103,7 @@ class Game extends React.Component {
 
         newSquares[i] = this.whoseTurn();
         this.setState({
-            history: newHistory.concat([{squares: newSquares, lastCellChangeLocation: `(${col}, ${row})`}]),
+            history: newHistory.concat([{squares: newSquares, lastCellChangeLocation: `(${col}, ${row})`, lastClickLocation: i}]),
             currentStep: newHistory.length,
         });
     }
@@ -120,6 +138,7 @@ class Game extends React.Component {
     }
 
     render() {
+        const current = this.state.history[this.state.currentStep];
         const squares = this.state.history[this.state.currentStep].squares;
         const winner = Game.calculateWinner(squares);
         const moves = this.state.history.map((step, move) => {
@@ -164,6 +183,7 @@ class Game extends React.Component {
                         handleClick={(i) => {
                             this.mark(i);
                         }}
+                        lastClickLocation={current.lastClickLocation}
 
                         squares={squares}
                     />
