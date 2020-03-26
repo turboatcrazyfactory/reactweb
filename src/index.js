@@ -12,45 +12,76 @@ function Square(props) {
     );
 }
 
+class Board extends React.Component {
+    renderSquare(i) {
+        return (
+            <Square value={this.props.squares[i]}
+                    onClick={() => {
+                        this.props.handleSquareClick(i);
+                    }}
+            />
+        );
+    }
+
+    render() {
+        return (
+            <div>
+                <div className="board-row">
+                    {this.renderSquare(0)}
+                    {this.renderSquare(1)}
+                    {this.renderSquare(2)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(3)}
+                    {this.renderSquare(4)}
+                    {this.renderSquare(5)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(6)}
+                    {this.renderSquare(7)}
+                    {this.renderSquare(8)}
+                </div>
+            </div>
+        );
+    }
+}
+
 function RestartButton(props) {
     return (
         <a href="#" onClick={props.onClick} style={{display: props.hidden ? 'none' : ''}}>Restart</a>
     );
 }
 
-class Board extends React.Component {
-    defaultState = {
-        squares: Array(9).fill(null),
-        currentTurn: 'X'
-    };
+
+class Game extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = this.defaultState;
+        this.state = {
+            history: [],
+            currentTurn: 'X',
+            squares: Array(9).fill(null),
+        };
     }
 
     mark(i) {
         const squares = this.state.squares.slice();
-        if (Board.calculateWinner(squares) || squares[i]) {
+        const newHistory = this.state.history.slice();
+        if (Game.calculateWinner(squares) || squares[i]) {
             return;
         }
 
         squares[i] = this.state.currentTurn;
-        this.props.handleChange(squares);
+        newHistory.push({squares});
         this.setState({
             squares: squares,
+            history: newHistory,
             currentTurn: this.state.currentTurn === 'X' ? 'O' : 'X',
         });
     }
 
-    renderSquare(i) {
-        return (
-            <Square value={this.state.squares[i]}
-                    onClick={() => {
-                        this.mark(i);
-                    }}
-            />
-        );
+    restart() {
+        this.setState({...this.state, currentTurn: 'X', squares: Array(9).fill(null)});
     }
 
     static calculateWinner(squares) {
@@ -74,12 +105,8 @@ class Board extends React.Component {
         return null;
     }
 
-    restart() {
-        this.setState(this.defaultState);
-    }
-
     render() {
-        const winner = Board.calculateWinner(this.state.squares);
+        const winner = Game.calculateWinner(this.state.squares);
         let status = 'Next player: ' + this.state.currentTurn;
         let end = false;
         if (winner) {
@@ -92,61 +119,27 @@ class Board extends React.Component {
         }
 
         return (
-            <div>
-                <RestartButton onClick={() => {
-                    this.restart();
-                }} hidden={!end}/>
-                <div className="status">{status}</div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-            </div>
-        );
-    }
-}
-
-class Game extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            history: [],
-        };
-    }
-
-    recordHistory(squares) {
-        const newHistory = this.state.history.slice();
-        newHistory.push({squares});
-        this.setState({
-            history: newHistory
-        })
-    }
-
-    render() {
-        return (
             <div className="game">
                 <div className="game-board">
-                    <Board handleChange={(squares) => {
-                        if (!squares) {
-                            return;
-                        }
-                        this.recordHistory(squares);
-                    }}/>
+                    <RestartButton onClick={() => {
+                        this.restart();
+                    }} hidden={!end}/>
+                    <Board
+                        handleChange={(squares) => {
+                            if (!squares) {
+                                return;
+                            }
+                            this.recordHistory(squares);
+                        }}
+                        handleSquareClick={(i) => {
+                            this.mark(i);
+                        }}
+
+                        squares={this.state.squares}
+                    />
                 </div>
                 <div className="game-info">
-                    <div>{/* status */}</div>
+                    <div className="status">{status}</div>
                     <ol>{/* TODO */}</ol>
                 </div>
             </div>
