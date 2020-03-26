@@ -66,17 +66,15 @@ class Game extends React.Component {
 
     mark(i) {
         const newSquares = this.state.squares.slice();
-        const newHistory = this.state.history.slice();
         const newCurrentTurn = this.state.currentTurn === 'X' ? 'O' : 'X';
         if (Game.calculateWinner(newSquares) || newSquares[i]) {
             return;
         }
 
         newSquares[i] = this.state.currentTurn;
-        newHistory.push({squares: newSquares, currentTurn: newCurrentTurn});
         this.setState({
             squares: newSquares,
-            history: newHistory,
+            history: this.state.history.concat([{squares: newSquares, currentTurn: newCurrentTurn}]),
             currentTurn: newCurrentTurn,
         });
     }
@@ -119,7 +117,7 @@ class Game extends React.Component {
                 : 'Go to game start';
 
             return (
-                <li>
+                <li key={{move}}>
                     <button onClick={() => {
                         this.jumpTo(move);
                     }}>
